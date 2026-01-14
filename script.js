@@ -10,7 +10,8 @@ class ReelScheduler {
         this.isOnline = true;
 
         // API configuration
-        this.API_BASE_URL = 'http://localhost:3000/api';
+        // this.API_BASE_URL = 'http://localhost:3000/api';
+        this.API_BASE_URL = '/api';
 
         this.init();
     }
@@ -1259,4 +1260,5 @@ style.textContent = `
         color: #6b7280;
     }
 `;
+
 document.head.appendChild(style);
