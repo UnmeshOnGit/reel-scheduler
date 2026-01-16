@@ -1,35 +1,40 @@
 // Main Application
 class ReelScheduler {
     constructor() {
-        this.videos = [];
-        this.currentMonth = new Date().getMonth();
-        this.currentYear = new Date().getFullYear();
-        this.currentFilter = 'all';
-        this.currentSearch = '';
-        this.autoSaveTimeout = null;
-        this.isOnline = true;
+    this.videos = [];
+    this.currentMonth = new Date().getMonth();
+    this.currentYear = new Date().getFullYear();
+    this.currentFilter = 'all';
+    this.currentSearch = '';
+    this.autoSaveTimeout = null;
+    this.isOnline = false; // Start as offline
 
-        // API configuration
-        this.API_BASE_URL = 'http://localhost:3000/api';
+    // 🔧 FIXED: Use relative URL
+    this.API_BASE_URL = '/api';
 
-        this.init();
-    }
+    this.init();
+}
 
     async init() {
-        console.log('Initializing ReelScheduler...');
+    console.log('Initializing ReelScheduler...');
+    
+    // Only check connection if not on localhost
+    if (!window.location.hostname.includes('localhost')) {
         await this.checkConnection();
-        if (this.isOnline) {
-            console.log('Online - loading from server');
-            await this.loadFromServer();
-        } else {
-            console.log('Offline - loading from localStorage');
-            this.loadFromLocalStorage();
-        }
-        this.setupEventListeners();
-        this.render();
-        this.startConnectionMonitor();
-        console.log('Initialization complete. Videos loaded:', this.videos.length);
     }
+    
+    if (this.isOnline) {
+        console.log('Online - loading from server');
+        await this.loadFromServer();
+    } else {
+        console.log('Offline - loading from localStorage');
+        this.loadFromLocalStorage();
+    }
+    this.setupEventListeners();
+    this.render();
+    this.startConnectionMonitor();
+    console.log('Initialization complete. Videos loaded:', this.videos.length);
+}
 
     // 🔌 Connection Management
     async checkConnection() {
@@ -1501,3 +1506,4 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
