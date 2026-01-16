@@ -1,6 +1,7 @@
 {
   "videos": [
     {
+      "_id": "6969d7c69426c5d90c7bca2f",
       "id": 1,
       "name": "Tauba Tauba",
       "contentType": "Dance",
@@ -12,9 +13,13 @@
       "ytDate": "",
       "views": 1852,
       "likes": 66,
-      "notes": "Good engagement, mostly male audience"
+      "notes": "Good engagement, mostly male audience",
+      "createdAt": "2024-08-07T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca30",
       "id": 2,
       "name": "APT",
       "contentType": "Dance",
@@ -26,9 +31,13 @@
       "ytDate": "",
       "views": 3514,
       "likes": 87,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-01-19T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca31",
       "id": 3,
       "name": "Dhak Dhak",
       "contentType": "Dance",
@@ -40,9 +49,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-01-29T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca32",
       "id": 4,
       "name": "Rang",
       "contentType": "Dance",
@@ -54,9 +67,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-02-12T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca33",
       "id": 5,
       "name": "Chikiri Chikiri",
       "contentType": "Dance",
@@ -68,9 +85,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-11-19T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca34",
       "id": 6,
       "name": "Boyfriend-Karan Aujla",
       "contentType": "Dance",
@@ -82,9 +103,13 @@
       "ytDate": "2026-01-18",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-11-24T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca35",
       "id": 7,
       "name": "Dil ka jo haal hai",
       "contentType": "Dance",
@@ -96,9 +121,13 @@
       "ytDate": "2026-01-16",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-01T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca36",
       "id": 8,
       "name": "Banjare",
       "contentType": "Dance",
@@ -110,9 +139,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-04T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca37",
       "id": 9,
       "name": "Lover-Diljit Dosanjh",
       "contentType": "Dance",
@@ -124,9 +157,13 @@
       "ytDate": "2026-01-25",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-07T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca38",
       "id": 10,
       "name": "Lover BTS",
       "contentType": "BTS",
@@ -138,9 +175,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-11T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca39",
       "id": 11,
       "name": "Sierra",
       "contentType": "Dance",
@@ -152,9 +193,13 @@
       "ytDate": "2026-01-13",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-12T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca3a",
       "id": 12,
       "name": "Sierra BTS",
       "contentType": "BTS",
@@ -166,9 +211,13 @@
       "ytDate": "2026-01-21",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-17T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca3b",
       "id": 13,
       "name": "Tu meri me tera",
       "contentType": "Dance",
@@ -180,9 +229,13 @@
       "ytDate": "2025-12-21",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-19T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca3c",
       "id": 14,
       "name": "FA9LA-School Dance",
       "contentType": "Dance",
@@ -194,9 +247,13 @@
       "ytDate": "2025-12-25",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-15T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca3d",
       "id": 15,
       "name": "Lucky tu lucky me",
       "contentType": "Dance",
@@ -208,9 +265,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-26T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca3e",
       "id": 16,
       "name": "Hawa Hawa",
       "contentType": "Dance",
@@ -222,9 +283,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2025-12-29T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca3f",
       "id": 17,
       "name": "Don'u Don'u",
       "contentType": "Dance",
@@ -236,9 +301,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-03T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca40",
       "id": 18,
       "name": "Jugnu",
       "contentType": "Dance",
@@ -250,9 +319,13 @@
       "ytDate": "2026-01-11",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-09T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca41",
       "id": 19,
       "name": "Just a boy-Trend",
       "contentType": "Other",
@@ -264,9 +337,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-10T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca42",
       "id": 20,
       "name": "Kukkad",
       "contentType": "Dance",
@@ -278,9 +355,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-16T06:20:20.060Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca43",
       "id": 21,
       "name": "Chaleya",
       "contentType": "Dance",
@@ -292,23 +373,31 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-16T06:20:20.060Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca44",
       "id": 22,
       "name": "Thalapathy Kacheri",
       "contentType": "Dance",
       "shoot": "Done",
-      "edit": "Pending",
-      "igUpload": "Scheduled",
+      "edit": "Done",
+      "igUpload": "Uploaded",
       "ytUpload": "Not",
       "igDate": "2026-01-15",
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-15T00:00:00.000Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca45",
       "id": 23,
       "name": "Ghungaroo",
       "contentType": "Dance",
@@ -320,9 +409,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-16T06:20:20.060Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca46",
       "id": 24,
       "name": "Muqbla",
       "contentType": "Dance",
@@ -334,9 +427,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-16T06:20:20.060Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca47",
       "id": 25,
       "name": "Jalwa",
       "contentType": "Dance",
@@ -348,9 +445,13 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-16T06:20:20.060Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     },
     {
+      "_id": "6969d7c69426c5d90c7bca48",
       "id": 26,
       "name": "Vasaikar Masala",
       "contentType": "Dance",
@@ -362,9 +463,12 @@
       "ytDate": "",
       "views": 0,
       "likes": 0,
-      "notes": ""
+      "notes": "",
+      "createdAt": "2026-01-16T06:20:20.060Z",
+      "updatedAt": "2026-01-16T06:20:20.060Z",
+      "__v": 0
     }
   ],
-  "version": "1.0.0",
-  "lastUpdated": "2026-01-14T08:13:48.002Z"
+  "version": "2.0.0",
+  "lastUpdated": "2026-01-16T06:26:48.177Z"
 }
