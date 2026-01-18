@@ -1,40 +1,36 @@
 // Main Application
 class ReelScheduler {
     constructor() {
-    this.videos = [];
-    this.currentMonth = new Date().getMonth();
-    this.currentYear = new Date().getFullYear();
-    this.currentFilter = 'all';
-    this.currentSearch = '';
-    this.autoSaveTimeout = null;
-    this.isOnline = false; // Start as offline
+        this.videos = [];
+        this.currentMonth = new Date().getMonth();
+        this.currentYear = new Date().getFullYear();
+        this.currentFilter = 'all';
+        this.currentSearch = '';
+        this.autoSaveTimeout = null;
+        this.isOnline = true;
 
-    // 🔧 FIXED: Use relative URL
-    this.API_BASE_URL = '/api';
+        // API configuration
+        // this.API_BASE_URL = 'http://localhost:3000/api'; for local development
+         this.API_BASE_URL = '/api'; //for deployement
 
-    this.init();
-}
+        this.init();
+    }
 
     async init() {
-    console.log('Initializing ReelScheduler...');
-    
-    // Only check connection if not on localhost
-    if (!window.location.hostname.includes('localhost')) {
+        console.log('Initializing ReelScheduler...');
         await this.checkConnection();
+        if (this.isOnline) {
+            console.log('Online - loading from server');
+            await this.loadFromServer();
+        } else {
+            console.log('Offline - loading from localStorage');
+            this.loadFromLocalStorage();
+        }
+        this.setupEventListeners();
+        this.render();
+        this.startConnectionMonitor();
+        console.log('Initialization complete. Videos loaded:', this.videos.length);
     }
-    
-    if (this.isOnline) {
-        console.log('Online - loading from server');
-        await this.loadFromServer();
-    } else {
-        console.log('Offline - loading from localStorage');
-        this.loadFromLocalStorage();
-    }
-    this.setupEventListeners();
-    this.render();
-    this.startConnectionMonitor();
-    console.log('Initialization complete. Videos loaded:', this.videos.length);
-}
 
     // 🔌 Connection Management
     async checkConnection() {
@@ -92,221 +88,97 @@ class ReelScheduler {
 
     // 🗄️ Data Storage Methods
     async loadFromServer() {
-        try {
-            console.log('Attempting to load from server...');
-            const response = await fetch(`${this.API_BASE_URL}/videos`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // Handle MongoDB response format
-            if (Array.isArray(data)) {
-                // MongoDB returns array directly
-                this.videos = data.map(video => this.mapMongoToLocal(video));
-                console.log(`Loaded ${this.videos.length} videos from MongoDB`);
-            } else if (data.videos && Array.isArray(data.videos)) {
-                // Old format with wrapper
-                this.videos = data.videos.map(video => this.mapMongoToLocal(video));
-                console.log(`Loaded ${this.videos.length} videos from server (wrapped format)`);
-            } else {
-                console.error('Unexpected data format:', data);
-                this.videos = [];
-            }
-            
-            // Save to local storage as backup
-            this.saveToLocalStorage();
-            
-            return true;
-        } catch (error) {
-            console.error('Error loading from server:', error);
-            return false;
-        }
-    }
-
-    // Map MongoDB document to local video format
-    mapMongoToLocal(mongoVideo) {
-        return {
-            id: mongoVideo.id,
-            _id: mongoVideo._id, // Keep MongoDB _id for sync
-            name: mongoVideo.name || '',
-            contentType: mongoVideo.contentType || 'Other',
-            shoot: mongoVideo.shoot || 'Pending',
-            edit: mongoVideo.edit || 'Pending',
-            igUpload: mongoVideo.igUpload || 'Not',
-            ytUpload: mongoVideo.ytUpload || 'Not',
-            igDate: mongoVideo.igDate || '',
-            ytDate: mongoVideo.ytDate || '',
-            views: mongoVideo.views || 0,
-            likes: mongoVideo.likes || 0,
-            notes: mongoVideo.notes || '',
-            createdAt: mongoVideo.createdAt || new Date().toISOString(),
-            updatedAt: mongoVideo.updatedAt || new Date().toISOString(),
-            isDirty: mongoVideo.isDirty || false // For sync tracking
-        };
-    }
-
-    // Map local video to MongoDB format
-    mapLocalToMongo(localVideo) {
-        const videoData = {
-            name: localVideo.name,
-            contentType: localVideo.contentType,
-            shoot: localVideo.shoot,
-            edit: localVideo.edit,
-            igUpload: localVideo.igUpload,
-            ytUpload: localVideo.ytUpload,
-            igDate: localVideo.igDate,
-            ytDate: localVideo.ytDate,
-            views: localVideo.views,
-            likes: localVideo.likes,
-            notes: localVideo.notes,
-            updatedAt: new Date().toISOString()
-        };
-
-        // Only include _id if it exists (for updates)
-        if (localVideo._id) {
-            videoData._id = localVideo._id;
+    try {
+        console.log('Attempting to load from server...');
+        const response = await fetch(`${this.API_BASE_URL}/videos`);
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `HTTP ${response.status}`);
         }
 
-        return videoData;
-    }
-
-    // UPDATED: Save to Server for MongoDB
-    async saveToServer() {
-        if (!this.isOnline) {
-            console.log('Cannot save to server - offline');
-            return false;
-        }
-
-        try {
-            // Get videos that need sync (dirty or new)
-            const videosToSync = this.videos.filter(video => 
-                !video._id || video.isDirty || !video.updatedAt
-            );
-
-            if (videosToSync.length === 0) {
-                console.log('No changes to sync');
-                return true;
-            }
-
-            console.log(`Syncing ${videosToSync.length} videos to server...`);
-
-            const syncData = {
-                videos: videosToSync.map(video => this.mapLocalToMongo(video)),
-                syncTimestamp: new Date().toISOString(),
-                clientId: this.getClientId()
+        const data = await response.json();
+        
+        // MongoDB returns videos directly in the array
+        this.videos = data.videos || data || [];
+        
+        // Extract _id and convert to string if it exists
+        this.videos = this.videos.map(video => {
+            const { _id, ...rest } = video;
+            return {
+                ...rest,
+                id: video.id || parseInt(video._id) || this.getNextId()
             };
+        });
 
-            const response = await fetch(`${this.API_BASE_URL}/videos/sync`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(syncData)
-            });
+        console.log(`Loaded ${this.videos.length} videos from server`);
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-            }
+        // Also save to local storage as backup
+        this.saveToLocalStorage();
 
-            const result = await response.json();
-            
-            // Update local videos with server IDs and clear dirty flags
-            if (result.syncedVideos && Array.isArray(result.syncedVideos)) {
-                result.syncedVideos.forEach(serverVideo => {
-                    const localIndex = this.videos.findIndex(v => 
-                        v._id === serverVideo._id || (v.id && v.id === serverVideo._id)
-                    );
-                    
-                    if (localIndex !== -1) {
-                        // Update with server data
-                        this.videos[localIndex] = this.mapMongoToLocal(serverVideo);
-                        this.videos[localIndex].isDirty = false;
-                    }
-                });
-            }
-
-            console.log('Data synced to server:', result.message);
-            
-            // Save updated data to local storage
-            this.saveToLocalStorage();
-            
-            return true;
-        } catch (error) {
-            console.error('Error saving to server:', error);
-            
-            // Mark videos as dirty for retry later
-            this.videos.forEach(video => {
-                if (!video._id || video.isDirty) {
-                    video.isDirty = true;
-                }
-            });
-            
-            return false;
+        return true;
+    } catch (error) {
+        console.error('Error loading from server:', error);
+        
+        // Check if it's a connection error
+        if (error.name === 'TypeError' || error.message.includes('Failed to fetch')) {
+            this.isOnline = false;
+            this.updateConnectionStatus();
         }
+        
+        return false;
     }
+}
 
-    // Generate unique client ID for sync tracking
-    getClientId() {
-        let clientId = localStorage.getItem('clientId');
-        if (!clientId) {
-            clientId = 'client_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('clientId', clientId);
+    async saveToServer() {
+    try {
+        const data = {
+            videos: this.videos,
+            version: '2.0.0',
+            timestamp: new Date().toISOString()
+        };
+
+        const response = await fetch(`${this.API_BASE_URL}/videos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP ${response.status}`);
         }
-        return clientId;
-    }
 
-    // Save individual video to server (for real-time updates)
-    async saveVideoToServer(videoData) {
-        try {
-            const method = videoData._id ? 'PUT' : 'POST';
-            const url = videoData._id 
-                ? `${this.API_BASE_URL}/videos/${videoData._id}`
-                : `${this.API_BASE_URL}/videos`;
-
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(this.mapLocalToMongo(videoData))
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const result = await response.json();
-            
-            // Update local video with server response
-            if (result.video) {
-                const updatedVideo = this.mapMongoToLocal(result.video);
-                const index = this.videos.findIndex(v => 
-                    v._id === updatedVideo._id || v.id === updatedVideo.id
-                );
-                
-                if (index !== -1) {
-                    this.videos[index] = updatedVideo;
-                    this.videos[index].isDirty = false;
-                }
-            }
-
-            return true;
-        } catch (error) {
-            console.error('Error saving video to server:', error);
-            return false;
+        const result = await response.json();
+        console.log('Data saved to server:', result.message);
+        
+        // Update videos with server data if needed
+        if (result.videos) {
+            this.videos = result.videos;
         }
+        
+        return true;
+    } catch (error) {
+        console.error('Error saving to server:', error);
+        
+        // Check if it's a connection error
+        if (error.name === 'TypeError' || error.message.includes('Failed to fetch')) {
+            this.isOnline = false;
+            this.updateConnectionStatus();
+        }
+        
+        return false;
     }
+}
 
     saveToLocalStorage() {
         try {
             const data = {
                 videos: this.videos,
                 version: '1.0.0',
-                lastSaved: new Date().toISOString(),
-                clientId: this.getClientId()
+                lastSaved: new Date().toISOString()
             };
             localStorage.setItem('reelSchedulerData', JSON.stringify(data));
             console.log('Data saved to local storage');
@@ -321,15 +193,7 @@ class ReelScheduler {
             if (saved) {
                 const data = JSON.parse(saved);
                 this.videos = data.videos || [];
-                
-                // Ensure all videos have isDirty flag
-                this.videos.forEach(video => {
-                    if (!video.hasOwnProperty('isDirty')) {
-                        video.isDirty = false;
-                    }
-                });
-                
-                console.log(`Loaded ${this.videos.length} videos from local storage`);
+                console.log(`Loaded ${this.videos.length} videos from local storage`, this.videos);
             } else {
                 this.loadSampleData();
                 console.log('Loaded sample data');
@@ -354,10 +218,7 @@ class ReelScheduler {
                 ytDate: "",
                 views: 15000,
                 likes: 1200,
-                notes: "Good engagement, mostly female audience",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                isDirty: false
+                notes: "Good engagement, mostly female audience"
             },
             {
                 id: 2,
@@ -371,10 +232,7 @@ class ReelScheduler {
                 ytDate: "",
                 views: 0,
                 likes: 0,
-                notes: "",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                isDirty: false
+                notes: ""
             },
             {
                 id: 6,
@@ -388,10 +246,7 @@ class ReelScheduler {
                 ytDate: "2026-01-18",
                 views: 0,
                 likes: 0,
-                notes: "",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                isDirty: false
+                notes: ""
             },
             {
                 id: 8,
@@ -405,10 +260,7 @@ class ReelScheduler {
                 ytDate: "2026-01-25",
                 views: 0,
                 likes: 0,
-                notes: "",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                isDirty: false
+                notes: ""
             }
         ];
     }
@@ -598,7 +450,6 @@ class ReelScheduler {
         if (video) {
             const newVideo = { ...video };
             newVideo.id = this.getNextId();
-            newVideo._id = null; // Clear MongoDB ID for new document
             newVideo.name = `${video.name} (Copy)`;
             newVideo.igUpload = 'Not';
             newVideo.ytUpload = 'Not';
@@ -607,9 +458,6 @@ class ReelScheduler {
             newVideo.views = 0;
             newVideo.likes = 0;
             newVideo.notes = '';
-            newVideo.createdAt = new Date().toISOString();
-            newVideo.updatedAt = new Date().toISOString();
-            newVideo.isDirty = true; // Mark for sync
 
             this.videos.push(newVideo);
             this.save();
@@ -621,11 +469,10 @@ class ReelScheduler {
 
     getNextId() {
         if (this.videos.length === 0) return 1;
-        const maxId = Math.max(...this.videos.map(v => v.id || 0));
-        return maxId + 1;
+        return Math.max(...this.videos.map(v => v.id)) + 1;
     }
 
-    // 📅 Feature: Calendar View - FIXED
+    // 📅 Feature: Calendar View
     renderCalendar() {
         const container = document.getElementById('calendarContainer');
         if (!container) return;
@@ -661,10 +508,15 @@ class ReelScheduler {
                 today.getMonth() === this.currentMonth &&
                 today.getFullYear() === this.currentYear;
 
-            // Find events for this day - ONLY SHOW SCHEDULED EVENTS
+            // Find events for this day
+
+            // const events = this.videos.filter(v =>
+            //     (v.igUpload === 'Scheduled' && v.igDate === dateStr) ||
+            //     (v.ytUpload === 'Scheduled' && v.ytDate === dateStr)
+            // );
             const events = this.videos.filter(v =>
-                (v.igDate === dateStr && v.igUpload === 'Scheduled') ||
-                (v.ytDate === dateStr && v.ytUpload === 'Scheduled')
+                (v.igDate === dateStr && (v.igUpload === 'Scheduled' || v.igUpload === 'Uploaded')) ||
+                (v.ytDate === dateStr && (v.ytUpload === 'Scheduled' || v.ytUpload === 'Uploaded'))
             );
 
             calendarHTML += `
@@ -672,30 +524,55 @@ class ReelScheduler {
                     <div class="calendar-date ${isToday ? 'today' : ''}">${day}</div>
             `;
 
-            // Render events for this day
+            // events.forEach(event => {
+            //     if (event.igUpload === 'Scheduled' && event.igDate === dateStr) {
+            //         calendarHTML += `
+            //             <div class="calendar-event ig" title="${event.name} - Instagram">
+            //                 <i class="fab fa-instagram"></i> ${event.name.substring(0, 10)}${event.name.length > 10 ? '...' : ''}
+            //             </div>
+            //         `;
+            //     }
+            //     if (event.ytUpload === 'Scheduled' && event.ytDate === dateStr) {
+            //         calendarHTML += `
+            //             <div class="calendar-event yt" title="${event.name} - YouTube">
+            //                 <i class="fab fa-youtube"></i> ${event.name.substring(0, 10)}${event.name.length > 10 ? '...' : ''}
+            //             </div>
+            //         `;
+            //     }
+            // });
+
             events.forEach(event => {
-                // Check Instagram events
-                if (event.igDate === dateStr && event.igUpload === 'Scheduled') {
+
+                // Instagram
+                if (event.igDate === dateStr) {
+                    const isUploaded = event.igUpload === 'Uploaded';
+
                     calendarHTML += `
-                        <div class="calendar-event ig scheduled"
-                             title="${event.name} - Instagram (Scheduled)">
-                            <i class="fab fa-instagram"></i>
-                            ${event.name.substring(0, 10)}${event.name.length > 10 ? '...' : ''}
-                        </div>
-                    `;
+            <div class="calendar-event ig ${isUploaded ? 'uploaded' : 'scheduled'}"
+                 title="${event.name} - Instagram (${event.igUpload})">
+                <i class="fab fa-instagram"></i>
+                
+                ${event.name.substring(0, 10)}${event.name.length > 10 ? '...' : ''}
+            </div>
+        `;
                 }
 
-                // Check YouTube events
-                if (event.ytDate === dateStr && event.ytUpload === 'Scheduled') {
+                // YouTube
+                if (event.ytDate === dateStr) {
+                    const isUploaded = event.ytUpload === 'Uploaded';
+
                     calendarHTML += `
-                        <div class="calendar-event yt scheduled"
-                             title="${event.name} - YouTube (Scheduled)">
-                            <i class="fab fa-youtube"></i>
-                            ${event.name.substring(0, 10)}${event.name.length > 10 ? '...' : ''}
-                        </div>
-                    `;
+            <div class="calendar-event yt ${isUploaded ? 'uploaded' : 'scheduled'}"
+                 title="${event.name} - YouTube (${event.ytUpload})">
+                <i class="fab fa-youtube"></i>
+                
+                ${event.name.substring(0, 10)}${event.name.length > 10 ? '...' : ''}
+            </div>
+        `;
                 }
+
             });
+
 
             calendarHTML += '</div>';
         }
@@ -764,8 +641,7 @@ class ReelScheduler {
                 videos: this.videos,
                 exportDate: new Date().toISOString(),
                 version: '1.0.0',
-                source: this.isOnline ? 'server' : 'local',
-                clientId: this.getClientId()
+                source: this.isOnline ? 'server' : 'local'
             };
 
             const dataStr = JSON.stringify(data, null, 2);
@@ -794,12 +670,7 @@ class ReelScheduler {
             try {
                 const data = JSON.parse(e.target.result);
                 if (data.videos && Array.isArray(data.videos)) {
-                    this.videos = data.videos.map(video => ({
-                        ...video,
-                        isDirty: video._id ? false : true, // New videos need sync
-                        updatedAt: new Date().toISOString()
-                    }));
-                    
+                    this.videos = data.videos;
                     await this.save();
                     this.render();
                     this.showNotification('Data imported successfully!', 'success');
@@ -860,7 +731,6 @@ class ReelScheduler {
                 <td>
                     <strong>${video.name}</strong>
                     ${video.notes ? '<i class="fas fa-sticky-note ms-1 text-warning" title="Has notes"></i>' : ''}
-                    ${video.isDirty ? '<i class="fas fa-sync-alt ms-1 text-info" title="Pending sync"></i>' : ''}
                 </td>
                 <td>
                     <span class="content-type-tag content-type-${video.contentType ? video.contentType.toLowerCase().replace(' ', '-') : 'other'}">
@@ -1012,28 +882,19 @@ class ReelScheduler {
             ytDate: document.getElementById('ytDate').value || '',
             views: parseInt(document.getElementById('views').value) || 0,
             likes: parseInt(document.getElementById('likes').value) || 0,
-            notes: document.getElementById('notes').value,
-            updatedAt: new Date().toISOString(),
-            isDirty: true // Mark for sync
+            notes: document.getElementById('notes').value
         };
 
         if (id) {
             // Update existing video
             const index = this.videos.findIndex(v => v.id === parseInt(id));
             if (index !== -1) {
-                // Keep existing MongoDB _id if present
-                videoData._id = this.videos[index]._id;
-                videoData.createdAt = this.videos[index].createdAt || new Date().toISOString();
-                
                 this.videos[index] = { ...this.videos[index], ...videoData };
                 console.log('Updated video:', this.videos[index]);
             }
         } else {
             // Add new video
             videoData.id = this.getNextId();
-            videoData.createdAt = new Date().toISOString();
-            videoData._id = null; // Will be set by MongoDB
-            
             this.videos.push(videoData);
             console.log('Added new video:', videoData);
         }
@@ -1049,27 +910,7 @@ class ReelScheduler {
 
     async deleteVideo(id) {
         if (confirm('Are you sure you want to delete this video?')) {
-            const video = this.videos.find(v => v.id === id);
             const initialLength = this.videos.length;
-            
-            if (video && video._id) {
-                // Try to delete from server if online
-                if (this.isOnline) {
-                    try {
-                        const response = await fetch(`${this.API_BASE_URL}/videos/${video._id}`, {
-                            method: 'DELETE'
-                        });
-                        
-                        if (!response.ok) {
-                            console.warn('Could not delete from server, will delete locally only');
-                        }
-                    } catch (error) {
-                        console.warn('Server delete failed, local delete only:', error);
-                    }
-                }
-            }
-            
-            // Delete locally
             this.videos = this.videos.filter(v => v.id !== id);
 
             if (this.videos.length < initialLength) {
@@ -1085,17 +926,6 @@ class ReelScheduler {
 
     async clearAllData() {
         if (confirm('⚠️ WARNING: This will delete ALL videos and cannot be undone. Continue?')) {
-            // Clear server data if online
-            if (this.isOnline) {
-                try {
-                    await fetch(`${this.API_BASE_URL}/videos/clear`, {
-                        method: 'DELETE'
-                    });
-                } catch (error) {
-                    console.warn('Could not clear server data:', error);
-                }
-            }
-            
             this.videos = [];
             await this.save();
             this.showNotification('All data cleared!', 'success');
@@ -1113,7 +943,7 @@ class ReelScheduler {
                 if (serverSaved) {
                     this.showNotification('Data synced with server', 'success');
                 } else {
-                    this.showNotification('Sync failed - will retry later', 'warning');
+                    this.showNotification('Sync failed', 'error');
                 }
             } catch (error) {
                 console.error('Sync error:', error);
@@ -1135,11 +965,7 @@ class ReelScheduler {
             this.saveToServer().then(success => {
                 if (success) {
                     console.log('Auto-saved to server');
-                } else {
-                    console.log('Auto-save failed, will retry later');
                 }
-            }).catch(error => {
-                console.error('Auto-save error:', error);
             });
         }
 
@@ -1468,42 +1294,5 @@ style.textContent = `
         background: rgba(107, 114, 128, 0.1);
         color: #6b7280;
     }
-    
-    /* Calendar event styles */
-    .calendar-event.ig.scheduled {
-        background: rgba(236, 72, 153, 0.2);
-        color: #ec4899;
-        border-left: 3px solid #ec4899;
-    }
-    
-    .calendar-event.yt.scheduled {
-        background: rgba(255, 0, 0, 0.2);
-        color: #ff0000;
-        border-left: 3px solid #ff0000;
-    }
-    
-    .calendar-event.ig.uploaded {
-        background: rgba(16, 185, 129, 0.2);
-        color: #10b981;
-        border-left: 3px solid #10b981;
-    }
-    
-    .calendar-event.yt.uploaded {
-        background: rgba(59, 130, 246, 0.2);
-        color: #3b82f6;
-        border-left: 3px solid #3b82f6;
-    }
-    
-    /* Sync status indicator */
-    .fa-sync-alt.text-info {
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0% { opacity: 0.5; }
-        50% { opacity: 1; }
-        100% { opacity: 0.5; }
-    }
 `;
 document.head.appendChild(style);
-
